@@ -1,6 +1,7 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import logo from './logo.svg';
-import './App.css';
+import styled from "@emotion/styled";
+import { VerifiedDapps } from './verifiedDapps';
 
 function extractRootDomain(u: string) {
   const domain = new URL(u).hostname;
@@ -14,19 +15,30 @@ function extractRootDomain(u: string) {
 function App() {
 
   const [url, setUrl] = useState<string | undefined>(undefined);
+  const [isVerified, setIsVerified] = useState(false);
   
   useEffect(() => {
     chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-      setUrl(extractRootDomain(tabs[0].url as string));
+      const currUrl = extractRootDomain(tabs[0].url as string);
+      if (VerifiedDapps[currUrl] != undefined) {
+        setIsVerified(true);  
+      }
+      setUrl(currUrl);
       // use `url` here inside the callback because it's asynchronous!
     });  
   }, []); 
   
   return (
-    <div className="App">
+    <Container>
+      <p>{isVerified ? "Verified!!" : "NOT VERIFIED"}</p>
       <p>{url}</p>
-    </div>
+    </Container>
   );
 }
+
+const Container = styled.div`
+  text-align: center;
+  padding: 20px;
+`;
 
 export default App;
